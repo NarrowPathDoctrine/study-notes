@@ -1,0 +1,68 @@
+name: Publish Study Notes Library
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Four times each hour; UK release times are interpreted in Python.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: study-library-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out site
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check due drafts and build public catalog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/build_library.py
+
+      - name: Save updated published library
+        id: changes
+        shell: bash
+        run: |
+          if ! git diff --quiet -- site/data/studies.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site/data/studies.json
+            git commit -m "Update published study notes catalog"
+            git push origin HEAD:main
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure GitHub Pages
+        if: github.event_name != 'schedule' || steps.changes.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        if: github.event_name != 'schedule' || steps.changes.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy website
+        if: github.event_name != 'schedule' || steps.changes.outputs.changed == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
