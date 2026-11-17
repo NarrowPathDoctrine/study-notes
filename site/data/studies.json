@@ -1,6 +1,17 @@
 {
-  "generated_at": "2026-11-11T21:44:45Z",
+  "generated_at": "2026-11-17T17:52:26Z",
   "studies": [
+    {
+      "id": "Study-0002",
+      "title": "There's Nothing God Can Do About It | Exposing Billy Graham",
+      "video_id": "OP_t0ikfJSs",
+      "pdf_url": "https://github.com/NarrowPathDoctrine/study-notes/releases/download/Study-0002/There.s.Nothing.God.Can.Do.About.It.pdf",
+      "published_at": "2026-11-17T17:52:26Z",
+      "year": 2026,
+      "topic": "Sovereign God",
+      "scripture": "Revelation 3:20",
+      "description": "Is man sovereign over is own salvation?"
+    },
     {
       "id": "study-0001",
       "title": "You Created Your Own God",
